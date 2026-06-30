@@ -39,6 +39,9 @@ class Agent:
     def move_backward(self, maze):
         self.movement.move_backward(self, maze)
 
+    def update(self, maze):
+        self.sensors.update(self, maze)
+
     def draw(self, screen):
         if not self.alive:
             return

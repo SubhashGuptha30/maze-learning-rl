@@ -28,7 +28,7 @@ def main():
 
         # Update
         controller.update(agent, maze)
-        agent.sensors.update(agent, maze)
+        agent.update(maze)
 
         # Draw
         screen.fill(config.BLACK)

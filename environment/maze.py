@@ -1,7 +1,9 @@
+import math
+
 import pygame
 
 from environment.tile import Tile
-from config import CELL_SIZE, BLACK, WHITE, GRAY, GREEN, BLUE
+from config import CELL_SIZE, GOAL_RADIUS, BLACK, WHITE, GRAY, GREEN, BLUE
 
 
 class Maze:
@@ -92,3 +94,11 @@ class Maze:
 
         return True
 
+    def reached_goal(self, agent):
+        if self.goal is None:
+            return False
+        goal_x, goal_y = self.goal
+        dx = agent.x - goal_x
+        dy = agent.y - goal_y
+        distance = math.sqrt(dx * dx + dy * dy)
+        return distance < GOAL_RADIUS

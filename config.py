@@ -6,6 +6,7 @@ WINDOW_TITLE = "NeuroEvolution Maze"
 
 # Maze Settings
 CELL_SIZE = 40
+GOAL_RADIUS = 15
 
 # Agent Settings
 AGENT_RADIUS = 10
@@ -26,3 +27,4 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
+ORANGE = (255, 165, 0)

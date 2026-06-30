@@ -2,47 +2,38 @@
 
 ## Purpose
 
-Collision detection determines whether an agent can move to a given position.
-Currently handled inline by `Maze.is_walkable()` and `Maze.is_wall()`.
+Collision prevents the agent from entering walls while allowing smooth
+continuous movement through open space.
 
 ## Responsibilities
 
-- **Owns**: The logic for determining if a circle (agent) overlaps with walls.
-- **Should never own**: Movement decisions (that's Movement's job) or rendering.
+- Predict whether a proposed movement is valid.
+- Reject invalid movement entirely (no partial moves).
+- Treat positions outside the maze boundary as walls.
 
-## Key Algorithms
+## Algorithm
 
-### 5-Point Circle Approximation
-
-Instead of true circle-vs-rectangle intersection, we sample 5 points:
-
-```
-        (x, y-r)
-           │
-(x-r, y) ─ ● ─ (x+r, y)
-           │
-        (x, y+r)
-```
-
-If any of these 5 points lands in a wall cell, the position is rejected.
-
-**Trade-off**: This is fast and simple but can miss corners. For our cell
-sizes and agent radii, it works well. A true circle-AABB test would be needed
-only if agents become large relative to cells.
-
-### Out-of-Bounds = Wall
-
-`is_wall()` returns `True` for any `(row, column)` outside the grid bounds.
-This means agents cannot escape the maze even if there's no border wall drawn.
+1. Compute the proposed next position from the agent's speed and angle.
+2. Sample five points around the agent's circular body (center + 4 cardinal).
+3. Convert each world-space point to grid-space via `world_to_grid()`.
+4. If any point lands inside a wall cell, reject the entire movement.
+5. Otherwise, update the agent's position.
 
 ## Design Decisions
 
-- **No separate collision.py yet** — The logic is simple enough to live inside
-  `maze.py`. The `collision.py` file is reserved for when we need SAT, swept
-  collision, or agent-vs-agent detection.
+- **Predictive collision** — We check the *next* position before moving, not
+  after. The agent never enters an invalid state. No tunneling, no correction.
+- **Five-point circle approximation** — Sampling center + 4 cardinal offsets
+  is fast and sufficient at our scale (`radius=10`, `cell_size=40`).
+- **Reject, not correct** — When blocked, the agent stays put. No wall
+  sliding, no push-back vectors. The neural network receives clear feedback:
+  "this direction is blocked."
+- **Maze owns collision** — The maze owns the world data, so it answers
+  collision queries. Movement asks; the maze decides.
 
 ## Future Improvements
 
-- True circle-AABB intersection for pixel-perfect collision.
-- Wall sliding (project rejected movement onto the wall tangent).
-- Agent-vs-agent collision (needed once population > 1 shares the maze).
+- Eight-point sampling (add diagonals for better corner accuracy).
+- Circle-vs-rectangle intersection for pixel-perfect collision.
+- Wall sliding (project rejected velocity onto the wall tangent).
+- Continuous collision detection for very fast agents.

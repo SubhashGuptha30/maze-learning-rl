@@ -13,11 +13,22 @@ class SensorSystem:
         self.readings = []
         self.hit_points = []
 
+    def _ray_color(self, normalized_distance):
+        """Return a color based on how close the wall is.
+        Near (< 0.3) = RED, Medium (0.3–0.6) = ORANGE, Far (> 0.6) = GREEN."""
+        if normalized_distance < 0.3:
+            return config.RED
+        elif normalized_distance < 0.6:
+            return config.ORANGE
+        else:
+            return config.GREEN
+
     def cast_ray(self, agent, maze, relative_angle):
         ray_angle = agent.angle + relative_angle
+        ax, ay = agent.position
         # Sensor origin is at the front of the agent
-        start_x = agent.x + agent.radius * math.cos(agent.angle)
-        start_y = agent.y + agent.radius * math.sin(agent.angle)
+        start_x = ax + agent.radius * math.cos(agent.angle)
+        start_y = ay + agent.radius * math.sin(agent.angle)
         distance = 0
         hit_point = None
 
@@ -48,11 +59,13 @@ class SensorSystem:
             self.hit_points.append(hit_point)
 
     def draw(self, screen, agent):
-        start_x = int(agent.x + agent.radius * math.cos(agent.angle))
-        start_y = int(agent.y + agent.radius * math.sin(agent.angle))
-        for hit_point in self.hit_points:
-            pygame.draw.line(screen, config.YELLOW, (start_x, start_y), (int(hit_point[0]), int(hit_point[1])), 1)
-            pygame.draw.circle(screen, config.YELLOW, (int(hit_point[0]), int(hit_point[1])), 2)
+        ax, ay = agent.position
+        start_x = int(ax + agent.radius * math.cos(agent.angle))
+        start_y = int(ay + agent.radius * math.sin(agent.angle))
+        for i, hit_point in enumerate(self.hit_points):
+            color = self._ray_color(self.readings[i])
+            pygame.draw.line(screen, color, (start_x, start_y), (int(hit_point[0]), int(hit_point[1])), 1)
+            pygame.draw.circle(screen, color, (int(hit_point[0]), int(hit_point[1])), 2)
 
     def get_readings(self):
         return self.readings
