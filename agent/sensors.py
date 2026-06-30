@@ -2,10 +2,12 @@ import math
 
 import pygame
 
+import config
+
 
 class SensorSystem:
-    def __init__(self, sensor_angles=None, max_range=200, step_size=1):
-        self.sensor_angles = sensor_angles if sensor_angles is not None else [-math.pi / 2, -math.pi / 4, 0.0, math.pi / 4, math.pi / 2]
+    def __init__(self, sensor_angles=None, max_range=config.MAX_SENSOR_RANGE, step_size=config.SENSOR_STEP):
+        self.sensor_angles = sensor_angles if sensor_angles is not None else config.SENSOR_ANGLES
         self.max_range = max_range
         self.step_size = step_size
         self.readings = []
@@ -13,8 +15,9 @@ class SensorSystem:
 
     def cast_ray(self, agent, maze, relative_angle):
         ray_angle = agent.angle + relative_angle
-        start_x = agent.x
-        start_y = agent.y
+        # Sensor origin is at the front of the agent
+        start_x = agent.x + agent.radius * math.cos(agent.angle)
+        start_y = agent.y + agent.radius * math.sin(agent.angle)
         distance = 0
         hit_point = None
 
@@ -30,6 +33,7 @@ class SensorSystem:
             distance += self.step_size
 
         if hit_point is None:
+            distance = self.max_range
             hit_point = (start_x + self.max_range * math.cos(ray_angle), start_y + self.max_range * math.sin(ray_angle))
 
         return distance, hit_point
@@ -44,9 +48,11 @@ class SensorSystem:
             self.hit_points.append(hit_point)
 
     def draw(self, screen, agent):
+        start_x = int(agent.x + agent.radius * math.cos(agent.angle))
+        start_y = int(agent.y + agent.radius * math.sin(agent.angle))
         for hit_point in self.hit_points:
-            pygame.draw.line(screen, (255, 255, 0), (int(agent.x), int(agent.y)), (int(hit_point[0]), int(hit_point[1])), 1)
-            pygame.draw.circle(screen, (255, 255, 0), (int(hit_point[0]), int(hit_point[1])), 2)
+            pygame.draw.line(screen, config.YELLOW, (start_x, start_y), (int(hit_point[0]), int(hit_point[1])), 1)
+            pygame.draw.circle(screen, config.YELLOW, (int(hit_point[0]), int(hit_point[1])), 2)
 
     def get_readings(self):
         return self.readings

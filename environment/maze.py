@@ -1,14 +1,7 @@
 import pygame
 
 from environment.tile import Tile
-
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GRAY = (128, 128, 128)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-
-CELL_SIZE = 40
+from config import CELL_SIZE, BLACK, WHITE, GRAY, GREEN, BLUE
 
 
 class Maze:
@@ -72,6 +65,11 @@ class Maze:
         row = int(y // self.cell_size)
         column = int(x // self.cell_size)
         return row, column
+
+    def grid_to_world(self, row, column):
+        x = column * self.cell_size + self.cell_size // 2
+        y = row * self.cell_size + self.cell_size // 2
+        return x, y
 
     def is_wall(self, row, column):
         if not (0 <= row < self.rows and 0 <= column < self.columns):

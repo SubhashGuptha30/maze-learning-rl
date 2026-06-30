@@ -4,10 +4,11 @@ import pygame
 
 from agent.movement import Movement
 from agent.sensors import SensorSystem
+import config
 
 
 class Agent:
-    def __init__(self, agent_id, x, y, angle=0.0, radius=10, speed=2.5, alive=True, color=(255, 0, 0), movement=None, sensors=None):
+    def __init__(self, agent_id, x, y, angle=0.0, radius=config.AGENT_RADIUS, speed=config.AGENT_SPEED, alive=True, color=config.RED, movement=None, sensors=None):
         self.id = agent_id
         self.x = float(x)
         self.y = float(y)
@@ -18,6 +19,10 @@ class Agent:
         self.color = color
         self.movement = movement if movement is not None else Movement()
         self.sensors = sensors if sensors is not None else SensorSystem()
+
+    @property
+    def position(self):
+        return self.x, self.y
 
     def set_movement(self, movement):
         self.movement = movement
@@ -39,6 +44,6 @@ class Agent:
             return
 
         pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
-        tip_x = self.x + (self.radius + 6) * math.cos(self.angle)
-        tip_y = self.y + (self.radius + 6) * math.sin(self.angle)
-        pygame.draw.line(screen, (255, 255, 255), (int(self.x), int(self.y)), (int(tip_x), int(tip_y)), 2)
+        tip_x = self.x + (self.radius + config.HEADING_LENGTH) * math.cos(self.angle)
+        tip_y = self.y + (self.radius + config.HEADING_LENGTH) * math.sin(self.angle)
+        pygame.draw.line(screen, config.WHITE, (int(self.x), int(self.y)), (int(tip_x), int(tip_y)), 2)

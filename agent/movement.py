@@ -1,15 +1,19 @@
 import math
 
+import config
+
 
 class Movement:
-    def __init__(self, turn_speed=math.radians(5)):
+    def __init__(self, turn_speed=config.TURN_SPEED):
         self.turn_speed = turn_speed
 
     def turn_left(self, agent):
         agent.angle -= self.turn_speed
+        agent.angle %= math.tau
 
     def turn_right(self, agent):
         agent.angle += self.turn_speed
+        agent.angle %= math.tau
 
     def move_forward(self, agent, maze, speed=None):
         distance = agent.speed if speed is None else speed

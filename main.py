@@ -1,19 +1,24 @@
 import pygame
 
 from agent.agent import Agent
+from agent.input_controller import InputController
 from agent.movement import Movement
 from agent.sensors import SensorSystem
-from environment.maze import BLACK, Maze
+from environment.maze import Maze
+from ui.debug_overlay import DebugOverlay
+import config
 
 
 def main():
     pygame.init()
     maze = Maze()
     agent = Agent(1, *maze.get_spawn(), movement=Movement(), sensors=SensorSystem())
+    controller = InputController()
     screen = pygame.display.set_mode((maze.width, maze.height))
-    pygame.display.set_caption("Reinforcement Learning Maze")
+    pygame.display.set_caption(config.WINDOW_TITLE)
 
     clock = pygame.time.Clock()
+    overlay = DebugOverlay()
     running = True
 
     while running:
@@ -21,24 +26,19 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_w]:
-            agent.move_forward(maze)
-        if keys[pygame.K_s]:
-            agent.move_backward(maze)
-        if keys[pygame.K_a]:
-            agent.turn_left()
-        if keys[pygame.K_d]:
-            agent.turn_right()
-
+        # Update
+        controller.update(agent, maze)
         agent.sensors.update(agent, maze)
 
-        screen.fill(BLACK)
+        # Draw
+        screen.fill(config.BLACK)
         maze.draw(screen)
         agent.sensors.draw(screen, agent)
         agent.draw(screen)
+        overlay.draw(screen, agent, clock)
+
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(config.FPS)
 
     pygame.quit()
 
