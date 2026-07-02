@@ -1,7 +1,7 @@
 import pygame
 
 from agent.agent import Agent
-from agent.input_controller import InputController
+from agent.rule_based_brain import RuleBasedBrain
 from agent.movement import Movement
 from agent.sensors import SensorSystem
 from environment.maze import Maze
@@ -13,7 +13,7 @@ def main():
     pygame.init()
     maze = Maze()
     agent = Agent(1, *maze.get_spawn(), movement=Movement(), sensors=SensorSystem())
-    controller = InputController()
+    controller = RuleBasedBrain()
     screen = pygame.display.set_mode((maze.width, maze.height))
     pygame.display.set_caption(config.WINDOW_TITLE)
 
