@@ -19,6 +19,10 @@ MAX_SENSOR_RANGE = 200
 SENSOR_STEP = 1
 SENSOR_ANGLES = [-math.pi / 2, -math.pi / 4, 0.0, math.pi / 4, math.pi / 2]
 
+# Brain Settings
+BRAIN_FRONT_THRESHOLD = 0.3
+BRAIN_CLEAR_THRESHOLD = 0.6
+
 # Colors (RGB)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
