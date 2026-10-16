@@ -19,3 +19,5 @@ env/
 # OS generated files
 Thumbs.db
 .claude-flow/
+best_brain.json
+*.csv

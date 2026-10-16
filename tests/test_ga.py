@@ -70,3 +70,23 @@ def test_bfs_uses_corridor_distance_not_straight_line():
 def test_genome_round_trips_through_network():
     genome = Genome()
     assert genome.to_network().get_weights() == genome.genes
+
+
+def test_genome_save_and_load_round_trip(tmp_path):
+    genome = Genome()
+    genome.fitness = 123.0
+    path = tmp_path / "brain.json"
+    genome.save(path, generation=7)
+
+    loaded = Genome.load(path)
+    assert loaded.genes == genome.genes
+    assert loaded.fitness == 123.0
+
+
+def test_population_seeded_from_saved_brain_keeps_it_first():
+    random.seed(4)
+    brain = Genome()
+    population = Population(size=10, seed_genome=brain)
+    assert population.genomes[0].genes == brain.genes
+    assert len(population.genomes) == 10
+    assert any(g.genes != brain.genes for g in population.genomes[1:])

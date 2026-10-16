@@ -5,6 +5,7 @@ from agent.agent import Agent
 from agent.neural_network_brain import NeuralNetworkBrain
 from environment.maze import Maze
 from evolution.fitness import bfs_distance_map, evaluate_fitness, path_distance
+from evolution.genome import Genome
 from evolution.population import Population
 from ui.statistics import Statistics
 import config
@@ -66,12 +67,18 @@ def run_generation(genomes, maze, distance_map, renderer=None, hud_prefix=""):
     return sum(reached)
 
 
-def evolve(generations, population_size, seed, renderer=None, stop_when_solved=False, verbose=True):
-    """Run the genetic algorithm. Returns the Statistics history."""
+def evolve(generations, population_size, seed, renderer=None, stop_when_solved=False, verbose=True,
+           save_path=None, seed_genome=None):
+    """Run the genetic algorithm. Returns the Statistics history.
+
+    If save_path is given, the best genome so far is written there after every
+    generation, so closing the window never loses the trained brain.
+    """
     random.seed(seed)
     maze = Maze()
     distance_map = bfs_distance_map(maze)
-    population = Population(population_size)
+    population = Population(population_size, seed_genome)
+    best_ever = None
     stats = Statistics()
 
     for _ in range(generations):
@@ -85,6 +92,10 @@ def evolve(generations, population_size, seed, renderer=None, stop_when_solved=F
             break
 
         row = stats.record(population.generation, [g.fitness for g in population.genomes], reached)
+        best = max(population.genomes, key=lambda g: g.fitness)
+        if save_path and (best_ever is None or best.fitness > best_ever.fitness):
+            best_ever = best.copy()
+            best_ever.save(save_path, population.generation)
         if verbose:
             print(Statistics.format(row, population_size))
         if stop_when_solved and reached:
@@ -101,20 +112,25 @@ def main():
     parser.add_argument("--population", type=int, default=config.POPULATION_SIZE)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--csv", help="save per-generation statistics to this CSV file")
+    parser.add_argument("--save", default="best_brain.json", help="where to store the best brain (default: %(default)s)")
+    parser.add_argument("--load", help="start from a saved brain instead of random ones")
     args = parser.parse_args()
+    seed_genome = Genome.load(args.load) if args.load else None
 
     renderer = None
     if not args.headless:
         from ui.renderer import Renderer
         renderer = Renderer(Maze())
 
-    stats = evolve(args.generations, args.population, args.seed, renderer)
+    stats = evolve(args.generations, args.population, args.seed, renderer,
+                   save_path=args.save, seed_genome=seed_genome)
 
     if renderer is not None:
         renderer.close()
     if args.csv:
         stats.save_csv(args.csv)
     print(f"First generation to reach the goal: {stats.first_solved()}")
+    print(f"Best brain saved to {args.save}")
 
 
 if __name__ == "__main__":

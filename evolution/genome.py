@@ -1,3 +1,4 @@
+import json
 import random
 
 import config
@@ -43,3 +44,28 @@ class Genome:
 
     def __len__(self):
         return len(self.genes)
+
+    def save(self, path, generation=None):
+        """Write the genes to a JSON file so a trained brain survives the program closing."""
+        data = {
+            "architecture": [config.NETWORK_INPUTS, config.NETWORK_HIDDEN, config.NETWORK_OUTPUTS],
+            "generation": generation,
+            "fitness": self.fitness,
+            "genes": self.genes,
+        }
+        with open(path, "w") as f:
+            json.dump(data, f)
+
+    @classmethod
+    def load(cls, path):
+        """Read a genome saved by save(). Refuses a brain built for a different network shape."""
+        with open(path) as f:
+            data = json.load(f)
+        expected = [config.NETWORK_INPUTS, config.NETWORK_HIDDEN, config.NETWORK_OUTPUTS]
+        if data.get("architecture") != expected or len(data.get("genes", [])) != len(cls()):
+            raise ValueError(f"{path} was saved for network {data.get('architecture')}, "
+                             f"but config.py now builds {expected}")
+        genome = cls(data["genes"])
+        genome.fitness = data.get("fitness", 0.0)
+        return genome
+

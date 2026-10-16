@@ -12,8 +12,15 @@ class Population:
     The simulation writes genome.fitness; evolve() reads it.
     """
 
-    def __init__(self, size=config.POPULATION_SIZE):
-        self.genomes = [Genome() for _ in range(size)]
+    def __init__(self, size=config.POPULATION_SIZE, seed_genome=None):
+        if seed_genome is None:
+            self.genomes = [Genome() for _ in range(size)]
+        else:
+            # Continue from a saved brain: keep it unchanged, fill the rest with mutated copies
+            self.genomes = [seed_genome.copy()] + [
+                Genome(mutate(seed_genome.genes, config.MUTATION_RATE, config.MUTATION_STRENGTH))
+                for _ in range(size - 1)
+            ]
         self.generation = 1
 
     def tournament_select(self, k=config.TOURNAMENT_SIZE):
