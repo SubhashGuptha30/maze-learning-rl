@@ -117,6 +117,7 @@ way to turn. Each fix was measured over the same 10 seeds × 100 generations:
 |---|---|---|
 | Baseline (crash penalty, wall sensors only) | 4/10 | 43.5 |
 | Mutation strength 0.2 | 2/10 | 44 |
+| Population 100 | 4/10 | 64 |
 | Mutation rate 0.2 | 4/10 | 54 |
 | Mutation rate 0.05 | 7/10 | 56 |
 | No crash penalty only | 3/10 | 49 |
