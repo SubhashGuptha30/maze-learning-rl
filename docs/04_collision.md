@@ -197,8 +197,8 @@ By keeping collision inside Maze, we get:
 
 **When to extract:** If collision grows to include agent-vs-agent
 detection, CCD (continuous collision detection), or multi-layer worlds,
-a dedicated collision module would be justified. The reserved
-`collision.py` file exists for this purpose.
+a dedicated `environment/collision.py` module would be justified. Until
+then there is no such file.
 
 ## 8. Complexity
 

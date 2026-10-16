@@ -165,32 +165,40 @@ Spatial Queries (is_wall, is_walkable, reached_goal)
 ```
 RL/
 ├── config.py                 Global constants (one source of truth)
-├── main.py                   Entry point and game loop
+├── main.py                   Entry point: generation loop, CLI flags
+├── benchmark.py              Runs the GA over many seeds
 │
 ├── agent/
 │   ├── agent.py              Entity: state + delegation
 │   ├── movement.py           Physics: turning + translation
 │   ├── sensors.py            Perception: raycasting + normalization
-│   └── input_controller.py   Brain: keyboard → commands
+│   ├── input_controller.py   Brain: keyboard → commands
+│   ├── rule_based_brain.py   Brain: hand-written rules
+│   └── neural_network_brain.py Brain: network outputs → commands
 │
 ├── environment/
 │   ├── maze.py               World: grid + spatial queries + collision
-│   ├── tile.py               Constants: wall, floor, spawn, goal
-│   └── collision.py          (Optional future advanced collision algorithms)
+│   └── tile.py               Constants: wall, floor, spawn, goal
 │
-├── neural_network/           (Planned) From-scratch feedforward NN
+├── neural_network/           From-scratch feedforward NN
+│   ├── activation.py         Sigmoid
 │   ├── neuron.py             Single neuron: weights + bias + activation
 │   ├── layer.py              Collection of neurons
 │   └── network.py            Chains layers: forward pass
 │
-├── evolution/                (Planned) Genetic algorithm
+├── evolution/                Genetic algorithm
+│   ├── fitness.py            BFS path distance + fitness score
 │   ├── genome.py             Flat float array ↔ network conversion
 │   ├── mutation.py           Gaussian perturbation of genes
 │   ├── crossover.py          Combining parent genomes
 │   └── population.py         Generational lifecycle
 │
 ├── ui/
-│   └── debug_overlay.py      Real-time telemetry HUD
+│   ├── debug_overlay.py      Real-time telemetry HUD (press D)
+│   ├── renderer.py           Draws population + generation HUD
+│   └── statistics.py         Best/avg/reached per generation, CSV export
+│
+├── tests/                    pytest: GA operators and fitness
 │
 └── docs/                     Documentation (you are here)
     ├── architecture.md       This file

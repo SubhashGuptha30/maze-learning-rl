@@ -1,4 +1,4 @@
-# 09 — Fitness Evaluation (Planned)
+# 09 — Fitness Evaluation
 
 ## 1. Purpose
 
@@ -13,7 +13,7 @@ well-designed network architecture.
 
 ## 2. Responsibilities
 
-**Will Own:**
+**Owns:**
 - Computing a fitness score from agent lifetime data (distance traveled,
   time survived, goal reached, blocked movements).
 - Combining multiple fitness components with configurable weights.
@@ -45,6 +45,17 @@ See [concepts/fitness.md](concepts/fitness.md) for detailed discussion of:
 
 ## Status
 
-This module does not yet exist in code. It will be implemented as part of
-the evolution system. The fitness evaluation algorithm is documented in
-[08_evolution.md](08_evolution.md) § Algorithm § Fitness Evaluation.
+Implemented in `evolution/fitness.py`:
+
+```
+fitness = (start_path_dist - final_path_dist)
+        - blocked_moves × BLOCKED_PENALTY
+        + (GOAL_BONUS + SPEED_BONUS × frames_left / MAX_FRAMES)   if goal reached
+```
+
+Distances are BFS path distances on the grid (computed once from the goal),
+not Euclidean, so walls don't make an agent look closer than it is.
+Survival time is deliberately not rewarded: wandering agents are stopped
+after `STUCK_FRAMES` without getting closer and scored where they stopped.
+Efficiency is the speed bonus; checkpoints are unnecessary because BFS
+distance already gives a gradient through every corridor.
