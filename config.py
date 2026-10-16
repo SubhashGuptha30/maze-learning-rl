@@ -23,6 +23,11 @@ SENSOR_ANGLES = [-math.pi / 2, -math.pi / 4, 0.0, math.pi / 4, math.pi / 2]
 BRAIN_FRONT_THRESHOLD = 0.3
 BRAIN_CLEAR_THRESHOLD = 0.6
 
+# Network Architecture
+NETWORK_INPUTS = 5   # sensor count
+NETWORK_HIDDEN = 8
+NETWORK_OUTPUTS = 4  # forward, backward, left, right
+
 # Colors (RGB)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
