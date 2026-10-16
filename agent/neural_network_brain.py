@@ -10,20 +10,24 @@ class NeuralNetworkBrain:
         self.network = network
 
     def update(self, agent, maze):
+        """Act for one frame. Returns how many moves a wall rejected (0-2)."""
         readings = agent.sensors.get_readings()
 
         # First frame: sensors haven't updated yet
         if not readings:
-            return
+            return 0
 
         outputs = self.network.forward(readings)
 
         # Each output independently controls one action
+        blocked = 0
         if outputs[0] > 0.5:
-            agent.move_forward(maze)
+            blocked += not agent.move_forward(maze)
         if outputs[1] > 0.5:
-            agent.move_backward(maze)
+            blocked += not agent.move_backward(maze)
         if outputs[2] > 0.5:
             agent.turn_left()
         if outputs[3] > 0.5:
             agent.turn_right()
+
+        return blocked

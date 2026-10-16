@@ -18,3 +18,4 @@ env/
 
 # OS generated files
 Thumbs.db
+.claude-flow/
