@@ -19,14 +19,18 @@ class Movement:
         distance = agent.speed if speed is None else speed
         next_x = agent.x + distance * math.cos(agent.angle)
         next_y = agent.y + distance * math.sin(agent.angle)
-        if maze.is_walkable(next_x, next_y, agent.radius):
-            agent.x = next_x
-            agent.y = next_y
+        if not maze.is_walkable(next_x, next_y, agent.radius):
+            return False
+        agent.x = next_x
+        agent.y = next_y
+        return True
 
     def move_backward(self, agent, maze, speed=None):
         distance = agent.speed if speed is None else speed
         next_x = agent.x - distance * math.cos(agent.angle)
         next_y = agent.y - distance * math.sin(agent.angle)
-        if maze.is_walkable(next_x, next_y, agent.radius):
-            agent.x = next_x
-            agent.y = next_y
+        if not maze.is_walkable(next_x, next_y, agent.radius):
+            return False
+        agent.x = next_x
+        agent.y = next_y
+        return True

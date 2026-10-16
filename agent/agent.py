@@ -34,10 +34,10 @@ class Agent:
         self.movement.turn_right(self)
 
     def move_forward(self, maze):
-        self.movement.move_forward(self, maze)
+        return self.movement.move_forward(self, maze)
 
     def move_backward(self, maze):
-        self.movement.move_backward(self, maze)
+        return self.movement.move_backward(self, maze)
 
     def update(self, maze):
         self.sensors.update(self, maze)
