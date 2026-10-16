@@ -1,4 +1,5 @@
 import argparse
+import os
 import random
 
 from agent.agent import Agent
@@ -111,10 +112,21 @@ def main():
     parser.add_argument("--population", type=int, default=config.POPULATION_SIZE)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--csv", help="save per-generation statistics to this CSV file")
-    parser.add_argument("--save", default="best_brain.json", help="where to store the best brain (default: %(default)s)")
-    parser.add_argument("--load", help="start from a saved brain instead of random ones")
+    parser.add_argument("--brain", default="best_brain.json",
+                        help="saved brain: continued from if it exists, then updated (default: %(default)s)")
+    parser.add_argument("--fresh", action="store_true",
+                        help="ignore the saved brain and start from random ones (overwrites it)")
     args = parser.parse_args()
-    seed_genome = Genome.load(args.load) if args.load else None
+
+    seed_genome = None
+    if not args.fresh and os.path.exists(args.brain):
+        try:
+            seed_genome = Genome.load(args.brain)
+        except ValueError as e:
+            parser.error(f"{e}. Run with --fresh to start over.")
+        print(f"Continuing from saved brain {args.brain} (use --fresh to start from scratch)")
+    else:
+        print("Starting from random brains")
 
     renderer = None
     if not args.headless:
@@ -122,14 +134,14 @@ def main():
         renderer = Renderer(Maze())
 
     stats = evolve(args.generations, args.population, args.seed, renderer,
-                   save_path=args.save, seed_genome=seed_genome)
+                   save_path=args.brain, seed_genome=seed_genome)
 
     if renderer is not None:
         renderer.close()
     if args.csv:
         stats.save_csv(args.csv)
     print(f"First generation to reach the goal: {stats.first_solved()}")
-    print(f"Best brain saved to {args.save}")
+    print(f"Best brain saved to {args.brain}")
 
 
 if __name__ == "__main__":

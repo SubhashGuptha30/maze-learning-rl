@@ -28,12 +28,14 @@ python main.py                 # watch evolution in a window
 | `python main.py --generations 50` | Evolve with the window (D toggles the debug overlay) |
 | `python main.py --headless --csv stats.csv` | Run without a window, as fast as possible, and save per-generation stats |
 | `python main.py --seed 3` | Use a different random seed (runs with the same seed are identical) |
-| `python main.py --load best_brain.json` | Start from a saved brain instead of random ones |
+| `python main.py --fresh` | Ignore the saved brain and start from random ones |
 | `python benchmark.py --seeds 10` | Measure how many generations it takes to solve, over many seeds |
 | `python -m pytest` | Run the tests |
 
-The best brain is saved to `best_brain.json` after every generation that
-improves it, so closing the window never loses training.
+**Saved brain.** The best brain is written to `best_brain.json` after every
+generation that improves it, so closing the window never loses training. The
+next `python main.py` continues from it automatically. The file is
+git-ignored, so a fresh clone always starts from random brains.
 
 ## How it works
 
