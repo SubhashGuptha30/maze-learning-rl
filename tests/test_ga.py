@@ -55,7 +55,7 @@ def test_fitness_is_higher_closer_to_goal():
     far = path_distance(maze, distances, *maze.grid_to_world(1, 2))    # next to spawn
 
     assert near < far < start
-    assert evaluate_fitness(start, near, False, 500, 1000, 0) > evaluate_fitness(start, far, False, 500, 1000, 0)
+    assert evaluate_fitness(start, near, False, 500, 1000) > evaluate_fitness(start, far, False, 500, 1000)
 
 
 def test_bfs_uses_corridor_distance_not_straight_line():

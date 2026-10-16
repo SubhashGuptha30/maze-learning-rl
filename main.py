@@ -25,7 +25,6 @@ def run_generation(genomes, maze, distance_map, renderer=None, hud_prefix=""):
     brains = [NeuralNetworkBrain(g.to_network()) for g in genomes]
     best_dist = [start_dist] * n
     frames_since_progress = [0] * n
-    blocked = [0] * n
     frames_used = [0] * n
     reached = [False] * n
 
@@ -36,7 +35,7 @@ def run_generation(genomes, maze, distance_map, renderer=None, hud_prefix=""):
 
         for i in active:
             agent = agents[i]
-            blocked[i] += brains[i].update(agent, maze)
+            brains[i].update(agent, maze)
             agent.update(maze)
             frames_used[i] = frame
 
@@ -63,7 +62,7 @@ def run_generation(genomes, maze, distance_map, renderer=None, hud_prefix=""):
     for i, genome in enumerate(genomes):
         final_dist = path_distance(maze, distance_map, agents[i].x, agents[i].y)
         genome.fitness = evaluate_fitness(start_dist, final_dist, reached[i],
-                                          frames_used[i], config.MAX_FRAMES, blocked[i])
+                                          frames_used[i], config.MAX_FRAMES)
     return sum(reached)
 
 

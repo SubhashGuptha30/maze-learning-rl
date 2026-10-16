@@ -44,17 +44,17 @@ def path_distance(maze, distance_map, x, y):
     return steps * maze.cell_size
 
 
-def evaluate_fitness(start_dist, final_dist, reached_goal, frames_used, max_frames, blocked_moves):
+def evaluate_fitness(start_dist, final_dist, reached_goal, frames_used, max_frames):
     """Return a scalar fitness value where higher is better.
 
     progress     pixels of corridor distance closed toward the goal
     goal bonus   flat reward for reaching it, plus more the faster it got there
-    penalty      every move a wall rejected (crashing / wall-hugging)
-    Wandering is handled by the simulation: an agent that stops getting
-    closer is stopped early and scored where it ended up.
+    Crashing and wandering are handled by the simulation: an agent that
+    stops getting closer is stopped early and scored where it ended up.
+    There is deliberately no per-crash penalty: it taught agents to stop in
+    front of walls instead of turning, and they got stuck in the first corner.
     """
-    progress = max(0.0, start_dist - final_dist)
-    fitness = progress - blocked_moves * config.BLOCKED_PENALTY
+    fitness = max(0.0, start_dist - final_dist)
 
     if reached_goal:
         frames_left = max(0, max_frames - frames_used)

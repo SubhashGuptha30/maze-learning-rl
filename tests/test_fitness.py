@@ -14,9 +14,9 @@ class FitnessTests(unittest.TestCase):
         self.assertEqual(path_distance(maze, distances, goal_x, goal_y), 0)
 
     def test_evaluate_fitness_rewards_goal_and_progress(self):
-        goal_score = evaluate_fitness(200, 0, True, 30, 200, 2)
-        progress_score = evaluate_fitness(200, 80, False, 60, 200, 4)
-        failure_score = evaluate_fitness(200, 200, False, 200, 200, 20)
+        goal_score = evaluate_fitness(200, 0, True, 30, 200)
+        progress_score = evaluate_fitness(200, 80, False, 60, 200)
+        failure_score = evaluate_fitness(200, 200, False, 200, 200)
 
         self.assertGreater(goal_score, progress_score)
         self.assertGreater(progress_score, failure_score)

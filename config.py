@@ -24,7 +24,7 @@ BRAIN_FRONT_THRESHOLD = 0.3
 BRAIN_CLEAR_THRESHOLD = 0.6
 
 # Network Architecture
-NETWORK_INPUTS = 5   # sensor count
+NETWORK_INPUTS = 6   # 5 wall sensors + direction to the goal
 NETWORK_HIDDEN = 8
 NETWORK_OUTPUTS = 4  # forward, backward, left, right
 
@@ -41,7 +41,6 @@ MUTATION_STRENGTH = 0.5  # std dev of the Gaussian noise
 # Fitness
 GOAL_BONUS = 1000.0
 SPEED_BONUS = 500.0      # scaled by the fraction of frames left when the goal is reached
-BLOCKED_PENALTY = 0.5    # per move rejected by a wall
 
 # Colors (RGB)
 BLACK = (0, 0, 0)

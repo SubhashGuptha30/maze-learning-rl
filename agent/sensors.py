@@ -58,6 +58,13 @@ class SensorSystem:
             self.readings.append(distance / self.max_range)
             self.hit_points.append(hit_point)
 
+        # Direction to the goal relative to the heading, 0..1 (0.25 = to the right).
+        # Without it the network only sees walls and can't tell which turn leads to the goal.
+        # shortcut: jumps 1 -> 0 when the goal is dead ahead; use sin/cos (2 inputs) if that hurts.
+        goal_x, goal_y = maze.get_goal()
+        relative = (math.atan2(goal_y - agent.y, goal_x - agent.x) - agent.angle) % math.tau
+        self.readings.append(relative / math.tau)
+
     def draw(self, screen, agent):
         ax, ay = agent.position
         start_x = int(ax + agent.radius * math.cos(agent.angle))

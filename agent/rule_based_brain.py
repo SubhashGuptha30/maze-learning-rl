@@ -18,7 +18,7 @@ class RuleBasedBrain:
         if not readings:
             return
 
-        left, front_left, front, front_right, right = readings
+        left, front_left, front, front_right, right = readings[:5]
 
         # If currently committed to a turn, keep turning until front is clear
         if self.turning is not None:

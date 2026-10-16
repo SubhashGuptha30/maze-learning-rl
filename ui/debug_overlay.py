@@ -26,7 +26,7 @@ class DebugOverlay:
         ]
 
         # Add sensor readings with short labels
-        sensor_labels = ["L", "FL", "F", "FR", "R"]
+        sensor_labels = ["L", "FL", "F", "FR", "R", "Goal"]
         for label, reading in zip(sensor_labels, agent.sensors.get_readings()):
             info_lines.append(f"  {label:<3} {reading:.2f}")
 
