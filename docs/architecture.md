@@ -196,6 +196,7 @@ RL/
 ├── ui/
 │   ├── debug_overlay.py      Real-time telemetry HUD (press D)
 │   ├── renderer.py           Draws population + generation HUD
+│   ├── brain_view.py         Live network diagram of the leader's brain
 │   └── statistics.py         Best/avg/reached per generation, CSV export
 │
 ├── tests/                    pytest: GA operators and fitness

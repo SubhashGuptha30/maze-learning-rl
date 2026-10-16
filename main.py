@@ -55,9 +55,9 @@ def run_generation(genomes, maze, distance_map, renderer=None, hud_prefix=""):
         if renderer is not None:
             if not renderer.handle_events():
                 return None
-            leader = agents[min(active, key=lambda i: best_dist[i])]
+            leader = min(active, key=lambda i: best_dist[i])
             hud = f"{hud_prefix} | alive {len(active)} | reached {sum(reached)}"
-            renderer.draw(maze, agents, leader, hud)
+            renderer.draw(maze, agents, agents[leader], brains[leader].network, hud)
 
     for i, genome in enumerate(genomes):
         final_dist = path_distance(maze, distance_map, agents[i].x, agents[i].y)

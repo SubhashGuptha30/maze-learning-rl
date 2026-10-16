@@ -1,11 +1,13 @@
 import pygame
 
 import config
+from ui.brain_view import BrainView
 from ui.debug_overlay import DebugOverlay
 
 
 class Renderer:
-    """Draws the maze, every active agent and a HUD strip below the maze.
+    """Draws the maze, every active agent, the leader's brain to the right
+    and a HUD strip below.
 
     The leader (closest to the goal) is drawn in yellow with its sensors.
     Press D to toggle the debug overlay for the leader.
@@ -15,11 +17,12 @@ class Renderer:
 
     def __init__(self, maze):
         pygame.init()
-        self.screen = pygame.display.set_mode((maze.width, maze.height + self.HUD_HEIGHT))
+        self.screen = pygame.display.set_mode((maze.width + BrainView.WIDTH, maze.height + self.HUD_HEIGHT))
         pygame.display.set_caption(config.WINDOW_TITLE)
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont("Courier New", 16, bold=True)
         self.overlay = DebugOverlay()
+        self.brain_view = BrainView()
         self.show_debug = False
 
     def handle_events(self):
@@ -31,13 +34,18 @@ class Renderer:
                 self.show_debug = not self.show_debug
         return True
 
-    def draw(self, maze, agents, leader, hud_text, generation="-"):
+    def draw(self, maze, agents, leader, leader_network, hud_text, generation="-"):
         self.screen.fill(config.BLACK)
         maze.draw(self.screen)
         for agent in agents:
-            agent.color = config.YELLOW if agent is leader else config.RED
+            agent.color = config.RED
             agent.draw(self.screen)
+        # Drawn last: elites are exact clones, so the leader can sit under an identical agent
+        leader.color = config.YELLOW
+        leader.draw(self.screen)
         leader.sensors.draw(self.screen, leader)
+        self.brain_view.draw(self.screen, maze.width, maze.height, leader_network,
+                             leader.sensors.get_readings(), f"Leader brain (agent {leader.id})")
 
         text = self.font.render(hud_text, True, config.WHITE)
         self.screen.blit(text, (8, maze.height + 5))
