@@ -28,6 +28,21 @@ NETWORK_INPUTS = 5   # sensor count
 NETWORK_HIDDEN = 8
 NETWORK_OUTPUTS = 4  # forward, backward, left, right
 
+# Evolution
+POPULATION_SIZE = 50
+GENERATIONS = 50
+MAX_FRAMES = 1000        # frame limit per generation
+STUCK_FRAMES = 150       # stop an agent that hasn't got closer to the goal for this long
+ELITE_COUNT = 2
+TOURNAMENT_SIZE = 3
+MUTATION_RATE = 0.1      # chance each gene is mutated
+MUTATION_STRENGTH = 0.5  # std dev of the Gaussian noise
+
+# Fitness
+GOAL_BONUS = 1000.0
+SPEED_BONUS = 500.0      # scaled by the fraction of frames left when the goal is reached
+BLOCKED_PENALTY = 0.5    # per move rejected by a wall
+
 # Colors (RGB)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
