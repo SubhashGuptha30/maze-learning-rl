@@ -34,8 +34,8 @@ A genetic algorithm optimizes a vector of numbers. It doesn't care what
 those numbers represent — they could be dimensions of a wing, parameters
 of a chemical formula, or weights of a neural network.
 
-Neural network weights are just numbers. A network with 84 parameters
-becomes a point in 84-dimensional space. The GA searches this space for
+Neural network weights are just numbers. A network with 92 parameters
+becomes a point in 92-dimensional space. The GA searches this space for
 the point that produces the best behavior.
 
 ## The Neuroevolution Loop
@@ -92,6 +92,6 @@ works best with small to medium networks.
 ## In Our Project
 
 We use the simplest form of neuroevolution: fixed topology, evolving
-weights only. Each genome is a flat list of 84 floats. The GA evaluates
+weights only. Each genome is a flat list of 92 floats. The GA evaluates
 fitness by running agents in the maze, then selects, crosses, and mutates
 to produce the next generation.

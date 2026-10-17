@@ -1,4 +1,4 @@
-# 07 — Neural Network (Planned)
+# 07 — Neural Network
 
 ## 1. Purpose
 
@@ -76,16 +76,18 @@ goal, those weights are "good." No gradients needed.
 
 ### The Weight Space
 
-A network with 5 inputs, 8 hidden neurons, and 4 outputs has:
+A network with 6 inputs, 8 hidden neurons, and 4 outputs has:
 
 ```
-Input → Hidden:   5 × 8 = 40 weights + 8 biases = 48
+Input → Hidden:   6 × 8 = 48 weights + 8 biases = 56
 Hidden → Output:  8 × 4 = 32 weights + 4 biases = 36
-Total: 84 parameters
+Total: 92 parameters
 ```
 
-The genome is a flat list of 84 floating-point numbers. Evolution searches
-this 84-dimensional space for the combination that produces the best
+(The 6th input is the direction to the goal; see 05_sensors.md.)
+
+The genome is a flat list of 92 floating-point numbers. Evolution searches
+this 92-dimensional space for the combination that produces the best
 behavior.
 
 Note: the Universal Approximation Theorem guarantees that a single hidden
@@ -275,8 +277,8 @@ revisit for advanced control.
 | Single neuron | O(inputs) | Dot product + bias + activation |
 | Single layer (N neurons, M inputs) | O(N × M) | N neurons, each O(M) |
 | Full forward pass | O(Σ layers) | Sum of layer costs |
-| 5→8→4 network | O(40 + 32) = O(72) | 72 weighted connections |
-| 500 agents per frame | O(36,000) | 72 × 500 |
+| 6→8→4 network | O(48 + 32) = O(80) | 80 weighted connections |
+| 500 agents per frame | O(40,000) | 80 × 500 |
 
 The neural network is extremely cheap. Even 500 forward passes per frame
 add negligible computational cost compared to sensor raycasting.

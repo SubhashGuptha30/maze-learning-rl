@@ -24,7 +24,7 @@ well-designed network architecture.
 - Neural network weights or forward pass.
 - Selection or breeding (that's evolution's job).
 
-## 3. Planned Fitness Components
+## 3. Fitness Components Considered
 
 | Component | Signal | Purpose |
 |-----------|--------|---------|

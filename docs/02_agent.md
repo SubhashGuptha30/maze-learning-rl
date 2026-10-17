@@ -73,7 +73,7 @@ Controller / Brain
    Normalized Readings [0.0 – 1.0]
         │
         ▼
-   (Future) Neural Network
+   Neural Network
 ```
 
 ## 5. Algorithm
@@ -189,8 +189,8 @@ Controller  ──commands──►  Agent  ──delegates──►  Movement
                              │
 Renderer    ──calls────►  Agent.draw()
                              │
-(Future)    ◄──reads────  Agent.position, Agent.alive
-Fitness
+main.py     ◄──reads────  Agent.position, Agent.alive
+(fitness)
 ```
 
 The agent is the central hub. Every system interacts with it, but no

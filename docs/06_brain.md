@@ -114,7 +114,7 @@ FUNCTION update(agent, maze):
     IF key_D pressed:  agent.turn_right()
 ```
 
-### RuleBasedBrain (Planned)
+### RuleBasedBrain
 
 ```
 FUNCTION update(agent, maze):
@@ -132,11 +132,11 @@ FUNCTION update(agent, maze):
         agent.move_forward(maze)
 ```
 
-### NeuralNetworkBrain (Planned)
+### NeuralNetworkBrain
 
 ```
 FUNCTION update(agent, maze):
-    inputs  ← agent.sensors.get_readings()     ← 5 floats
+    inputs  ← agent.sensors.get_readings()     ← 6 floats: 5 wall rays + goal direction
     outputs ← network.forward(inputs)           ← 4 floats
 
     IF outputs[0] > 0.5:  agent.move_forward(maze)

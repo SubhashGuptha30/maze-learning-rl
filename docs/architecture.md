@@ -93,7 +93,7 @@ pygame.quit()
 └─────────────────────────────────────────────────────┘
 ```
 
-## Training Flow (Planned)
+## Training Flow
 
 ```
 Initialize population of N random genomes
@@ -245,7 +245,6 @@ SensorSystem
 DebugOverlay
   └── Agent (reads state)
 
-(Future)
 NeuralNetworkBrain
   └── Network.forward()
 

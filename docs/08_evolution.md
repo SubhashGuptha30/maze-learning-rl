@@ -325,10 +325,10 @@ is a research-level extension.
 | Mutation | O(genome_length) | One pass through genome |
 | Full generation | O(T × N + N log N + N × G) | T dominates |
 
-With N=500 agents, T=1000 frames, genome=84 floats:
+With N=500 agents, T=1000 frames, genome=92 floats:
 - Simulation: 500,000 frames of physics + sensing
 - Sorting: negligible
-- Breeding: 500 × 84 ≈ 42,000 operations
+- Breeding: 500 × 92 ≈ 46,000 operations
 
 The simulation is the bottleneck, not evolution.
 

@@ -73,14 +73,14 @@ to activate).
 
 ### Count
 
-A 5→8→4 network has:
-- 40 weights + 8 biases (input to hidden) = 48 parameters
+A 6→8→4 network has:
+- 48 weights + 8 biases (input to hidden) = 56 parameters
 - 32 weights + 4 biases (hidden to output) = 36 parameters
-- Total: 84 parameters
+- Total: 92 parameters
 
 ### Storage
 
-All 84 values are stored as a flat list of floats (the genome). Evolution
+All 92 values are stored as a flat list of floats (the genome). Evolution
 doesn't distinguish between weights and biases — they're all just numbers
 to optimize.
 

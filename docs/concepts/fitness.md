@@ -135,9 +135,13 @@ overcome deceptive fitness landscapes.
 
 ## In Our Project
 
-Our planned fitness function combines:
-1. **Distance toward goal** — Primary signal.
-2. **Survival time** — Rewards obstacle avoidance.
-3. **Goal bonus** — Strong reward for completion.
-4. (Future) **Checkpoint bonuses** — Guides through complex mazes.
-5. (Future) **Collision penalties** — Discourages wall-hugging.
+Our fitness function (`evolution/fitness.py`) combines:
+1. **Distance toward goal**, measured as BFS path distance through the
+   corridors rather than straight-line distance, which walls make misleading.
+2. **Goal bonus**, a strong reward for completion.
+3. **Speed bonus**, which rewards reaching the goal with frames to spare.
+
+Two components were deliberately left out. **Survival time** isn't rewarded:
+agents that stop getting closer are stopped early instead. **Collision
+penalties** were tried and removed: they taught agents to stop in front of
+walls instead of turning. See 09_fitness.md and the README results.

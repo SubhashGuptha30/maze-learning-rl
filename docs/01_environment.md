@@ -77,7 +77,7 @@ is_wall(row, col)     ──►  Boolean (used by Movement, Sensors)
 is_walkable(x, y, r)  ──►  Boolean (used by Movement)
       │
       ▼
-reached_goal(agent)   ──►  Boolean (used by Fitness, future)
+reached_goal(agent)   ──►  Boolean (used by the generation loop in main.py)
 ```
 
 ## 5. Algorithm
@@ -147,7 +147,7 @@ Every Frame
     │
     ├── Movement asks:  maze.is_walkable(next_x, next_y, radius)
     ├── Sensors ask:    maze.is_wall(row, column)
-    ├── (Future) Fitness asks: maze.reached_goal(agent)
+    ├── main.py asks:   maze.reached_goal(agent)
     └── Renderer calls: maze.draw(screen)
 ```
 

@@ -60,6 +60,13 @@ Five sensors at -90°, -45°, 0°, +45°, +90° give the agent:
   turning decisions.
 - **Forward planning** — The front sensor detects what's directly ahead.
 
+**Plus a sixth reading: direction to the goal.** After the five rays,
+`SensorSystem.update()` appends the angle to the goal relative to the
+agent's heading, scaled to 0..1. With wall rays alone, agents got stuck in
+the first corner on 6 of 10 seeds: they had no cue for which way to turn.
+Adding this input (and dropping a crash penalty) took the original maze to
+9/10 seeds solved. See the README results.
+
 **Why not three?** Three sensors (left, front, right) lack diagonal
 awareness. The agent can't distinguish "wall ahead-left" from "wall
 directly left." It would frequently collide with diagonal obstacles.
@@ -99,7 +106,7 @@ Raw Distances (pixels)
 Normalization (÷ max_range)
       │
       ▼
-Sensor Readings [0.0 – 1.0]  ──►  Neural Network (future)
+Sensor Readings [0.0 – 1.0]  ──►  Neural Network
       │
       ▼
 Hit Points (x, y)  ──►  Renderer (ray visualization)

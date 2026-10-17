@@ -61,16 +61,16 @@ Result:  [o₁, o₂, o₃, o₄]          ← 4 movement decisions
 
 ## The Weight Space
 
-A network with 5 inputs, 8 hidden neurons, and 4 outputs has:
+A network with 6 inputs, 8 hidden neurons, and 4 outputs has:
 
 ```
-Input → Hidden:   5 × 8 weights + 8 biases = 48 parameters
+Input → Hidden:   6 × 8 weights + 8 biases = 56 parameters
 Hidden → Output:  8 × 4 weights + 4 biases = 36 parameters
-Total: 84 parameters
+Total: 92 parameters
 ```
 
-These 84 numbers define the network's entire behavior. Evolution searches
-this 84-dimensional space for the combination that produces the best
+These 92 numbers define the network's entire behavior. Evolution searches
+this 92-dimensional space for the combination that produces the best
 maze-solving behavior.
 
 ## Why "Deep" Doesn't Always Mean "Better"

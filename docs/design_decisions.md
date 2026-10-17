@@ -48,7 +48,8 @@ episodic rewards, and non-differentiable objectives.
 
 **Why five?** Sweet spot between spatial awareness and input dimensionality.
 The agent has peripheral, diagonal, and forward coverage. The resulting
-5-input neural network has a small, fast-to-evolve genome.
+network has a small, fast-to-evolve genome. A sixth input, the direction
+to the goal, was added later; see 05_sensors.md.
 
 ---
 
@@ -179,7 +180,7 @@ physics the network must learn. Deterministic and simple.
 **Context:** How should the agent be structured?
 
 **Decision:** The agent holds state and delegates behavior to Movement,
-SensorSystem, and (future) Brain components.
+SensorSystem, and Brain components.
 
 **Alternatives considered:**
 - **God object:** Agent does everything. Simple initially, unmaintainable
