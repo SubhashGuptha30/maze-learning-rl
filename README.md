@@ -30,6 +30,8 @@ python main.py                 # watch evolution in a window
 | `python main.py --seed 3` | Use a different random seed (runs with the same seed are identical) |
 | `python main.py --fresh` | Ignore the saved brain and start from random ones |
 | `python benchmark.py --seeds 10` | Measure how many generations it takes to solve, over many seeds |
+| `python main.py --train-mazes 5 --brain my_driver.json` | Train on 5 new random race tracks every generation (add `--kind maze` for dead-end mazes) |
+| `python main.py --test 50 --brain brains/track_driver.json` | Drive a saved brain on 50 tracks it has never seen, with no evolution, and count completed laps |
 | `python -m pytest` | Run the tests |
 
 **Saved brain.** The best brain is written to `best_brain.json` after every
@@ -130,14 +132,73 @@ to keep moving into the corner *and* a cue for which way to turn.
 
 ### Limitations, honestly
 
-- It's trained and evaluated on **one fixed maze**. The agents learn a driving
-  reflex for this maze, not general maze solving.
+- These results are for **one fixed maze**. The agents learn a driving reflex
+  for this maze, not general maze solving. See the next section for what
+  happens on layouts they've never seen.
 - The brain is purely reactive and has no memory, so it can't plan a route.
   It reacts to what its sensors see right now.
 - Even after solving, only a few agents per generation reach the goal (6/50
   at generation 50 on seed 0), because mutation keeps disrupting the
   children of the winners.
 - Seed 6 didn't solve within 100 generations.
+
+## Generalisation to unseen tracks (work in progress)
+
+The goal: a brain that drives *any* track, not just the one it trained on.
+
+![The track brain completing a lap on a track it has never seen](docs/images/track_demo.gif)
+
+*`brains/track_driver.json` completing a lap of unseen test track `test-0`.*
+
+**Setup.** `environment/maze_generator.py` builds random layouts.
+- **Race tracks:** a closed loop of road with curves and no dead ends. A wall
+  between S and G acts as a finish line, so reaching G means a full lap, and
+  the same BFS fitness measures lap progress.
+- **Mazes:** "perfect" mazes, meaning there's exactly one path between any
+  two cells, full of dead ends.
+
+Training follows the usual machine-learning split:
+
+| Split | Layouts | Used for |
+|---|---|---|
+| Train | 5 **new** random layouts every generation | fitness = average over them |
+| Validation | 10 fixed layouts | choosing which brain to save |
+| Test | 50 fixed layouts, never used in training | the numbers below |
+
+Random layouts get a 2000-frame limit. A hand-written driver needs 590–880
+frames for one lap.
+
+**Results** (population 50, 100 generations):
+
+| Brain | Unseen mazes solved | Unseen tracks lapped |
+|---|---|---|
+| Trained on the original maze only (seed 0) | 0 / 50 | 0 / 50 |
+| Trained on random mazes (seeds 0, 1, 2) | 0 / 50 each | – |
+| Trained on random tracks, seed 1 (`brains/track_driver.json`) | – | **26 / 50** |
+| Trained on random tracks, seeds 0, 2, 3, 4 | – | 0 / 50 each |
+
+What this shows:
+- **A brain trained on one maze overfits completely.** It solves its own maze
+  but nothing else.
+- **Training on varied tracks can generalise.** The seed-1 brain completes
+  laps on 52% of tracks it has never seen.
+- **But it's unreliable: 1 of 5 runs.** In the other four, no car finished a
+  lap within 100 generations. The populations stall about a third of the way
+  round, a version of the same corner trap as before. Seed 1 first completed
+  laps around generation 75, so longer runs may help, but I haven't measured
+  that yet.
+- **Dead-end mazes didn't work at all**, not even during training. A
+  hand-written right-hand-rule driver does solve 8 of 20 of these mazes under
+  the same rules, so the mazes are solvable. Evolution from scratch just never
+  found wall-following. Changing the rules (counting "stuck" as no new cell
+  visited, scoring the closest point reached, a 3000-frame limit) also gave
+  0/50 on all 3 seeds.
+
+A bug worth knowing about: building a network draws random numbers for its
+starting weights. So the validation runs at first used up random numbers and
+changed the course of evolution. A run with validation and one without were
+different experiments. The random state is now saved and restored around
+validation.
 
 ## Project structure
 
@@ -146,18 +207,20 @@ main.py            generation loop + CLI flags
 benchmark.py       multi-seed measurement
 config.py          every tunable constant
 agent/             Agent, Movement, SensorSystem, brains (NN, rule-based, keyboard)
-environment/       Maze (grid, collision, goal) and Tile
+environment/       Maze (grid, collision, goal), Tile, random maze/track generator
+brains/            trained brains you can test (track_driver.json)
 neural_network/    Neuron, Layer, Network, sigmoid (from scratch)
 evolution/         Genome, fitness, mutation, crossover, Population
 ui/                Renderer, live brain panel, statistics, debug overlay
-tests/             pytest: GA operators, fitness, save/load
+tests/             pytest: GA operators, fitness, save/load, generators
 docs/              design notes for every module
 ```
 
 ## Future work
 
-- **Generalise to any track**: train on many randomly generated mazes and
-  tracks, and report success on mazes the agents have never seen.
+- **Make track generalisation reliable**: longer runs, more training tracks
+  per generation, or a curriculum that starts with easy tracks, measured over
+  more seeds.
 - Car-like physics (acceleration, momentum) and lap-time fitness for race
   tracks.
 - NEAT (evolving the network's structure too) or a recurrent brain with memory.

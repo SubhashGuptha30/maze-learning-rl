@@ -178,7 +178,8 @@ RL/
 │
 ├── environment/
 │   ├── maze.py               World: grid + spatial queries + collision
-│   └── tile.py               Constants: wall, floor, spawn, goal
+│   ├── tile.py               Constants: wall, floor, spawn, goal
+│   └── maze_generator.py     Random perfect mazes and closed-loop race tracks
 │
 ├── neural_network/           From-scratch feedforward NN
 │   ├── activation.py         Sigmoid
