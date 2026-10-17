@@ -32,6 +32,7 @@ NETWORK_OUTPUTS = 4  # forward, backward, left, right
 POPULATION_SIZE = 50
 GENERATIONS = 50
 MAX_FRAMES = 1000        # frame limit per generation
+LAYOUT_MAX_FRAMES = 2000 # random tracks/mazes: a lap takes 600-900 frames even for a hand-written driver
 STUCK_FRAMES = 150       # stop an agent that hasn't got closer to the goal for this long
 ELITE_COUNT = 2
 TOURNAMENT_SIZE = 3

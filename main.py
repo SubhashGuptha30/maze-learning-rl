@@ -13,11 +13,11 @@ from ui.statistics import Statistics
 import config
 
 
-def run_generation(genomes, maze, distance_map, renderer=None, hud_prefix=""):
+def run_generation(genomes, maze, distance_map, renderer=None, hud_prefix="", max_frames=config.MAX_FRAMES):
     """Simulate one agent per genome, then write each genome's fitness.
 
     An agent stops when it reaches the goal, when it hasn't got closer to the
-    goal for STUCK_FRAMES frames, or at MAX_FRAMES. Returns how many agents
+    goal for STUCK_FRAMES frames, or at max_frames. Returns how many agents
     reached the goal, or None if the window was closed.
     """
     spawn = maze.get_spawn()
@@ -30,7 +30,7 @@ def run_generation(genomes, maze, distance_map, renderer=None, hud_prefix=""):
     frames_used = [0] * n
     reached = [False] * n
 
-    for frame in range(1, config.MAX_FRAMES + 1):
+    for frame in range(1, max_frames + 1):
         active = [i for i in range(n) if agents[i].alive]
         if not active:
             break
@@ -64,7 +64,7 @@ def run_generation(genomes, maze, distance_map, renderer=None, hud_prefix=""):
     for i, genome in enumerate(genomes):
         final_dist = path_distance(maze, distance_map, agents[i].x, agents[i].y)
         genome.fitness = evaluate_fitness(start_dist, final_dist, reached[i],
-                                          frames_used[i], config.MAX_FRAMES)
+                                          frames_used[i], max_frames)
     return sum(reached)
 
 
@@ -77,7 +77,7 @@ def random_maze(name, kind="track"):
     return Maze(generate(rng=random.Random(name)))
 
 
-def run_on_mazes(genomes, mazes, renderer=None, hud_prefix=""):
+def run_on_mazes(genomes, mazes, renderer=None, hud_prefix="", max_frames=config.MAX_FRAMES):
     """Score every genome on each maze and set its fitness to the average.
 
     Returns the total number of goal reaches over all mazes, or None if the
@@ -87,7 +87,7 @@ def run_on_mazes(genomes, mazes, renderer=None, hud_prefix=""):
     reached = 0
     for k, maze in enumerate(mazes):
         hud = hud_prefix if len(mazes) == 1 else f"{hud_prefix} | maze {k + 1}/{len(mazes)}"
-        result = run_generation(genomes, maze, bfs_distance_map(maze), renderer, hud)
+        result = run_generation(genomes, maze, bfs_distance_map(maze), renderer, hud, max_frames)
         if result is None:
             return None
         reached += result
@@ -117,6 +117,7 @@ def evolve(generations, population_size, seed, renderer=None, stop_when_solved=F
     population = Population(population_size, seed_genome)
     stats = Statistics()
     runs_per_generation = population_size * max(train_mazes, 1)
+    max_frames = config.LAYOUT_MAX_FRAMES if train_mazes else config.MAX_FRAMES
     validation = [random_maze(f"val-{i}", kind) for i in range(VALIDATION_SIZE)] if train_mazes else None
     best_validation = -1
 
@@ -128,7 +129,7 @@ def evolve(generations, population_size, seed, renderer=None, stop_when_solved=F
 
         mazes = fixed_maze or [random_maze(f"train-{seed}-{population.generation}-{k}", kind)
                                for k in range(train_mazes)]
-        reached = run_on_mazes(population.genomes, mazes, renderer, hud)
+        reached = run_on_mazes(population.genomes, mazes, renderer, hud, max_frames)
         if reached is None:
             break
 
@@ -136,8 +137,13 @@ def evolve(generations, population_size, seed, renderer=None, stop_when_solved=F
         best = max(population.genomes, key=lambda g: g.fitness)
         line = Statistics.format(row, runs_per_generation)
         if validation:
-            # Evaluate a copy: running it overwrites fitness, which evolve() still needs
-            solved = sum(run_generation([best.copy()], m, bfs_distance_map(m)) for m in validation)
+            # Evaluate a copy (running overwrites fitness, which evolve() still needs), and
+            # restore the random state: building networks draws random numbers, and
+            # validation must watch the evolution without changing its course
+            state = random.getstate()
+            solved = sum(run_generation([best.copy()], m, bfs_distance_map(m), max_frames=max_frames)
+                         for m in validation)
+            random.setstate(state)
             line += f" | validation {solved}/{len(validation)}"
             if solved > best_validation:
                 best_validation = solved
@@ -161,7 +167,8 @@ def test_brain(genome, count, renderer=None, kind="track"):
     solved = 0
     for i in range(count):
         maze = random_maze(f"test-{i}", kind)
-        reached = run_generation([genome], maze, bfs_distance_map(maze), renderer, f"Test maze {i + 1}/{count}")
+        reached = run_generation([genome], maze, bfs_distance_map(maze), renderer, f"Test {kind} {i + 1}/{count}",
+                                 config.LAYOUT_MAX_FRAMES)
         if reached is None:
             break
         solved += reached
