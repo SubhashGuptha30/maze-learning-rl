@@ -122,3 +122,13 @@ def test_generated_maze_is_perfect_and_solvable():
 def test_generated_maze_is_reproducible_from_name():
     assert generate_layout(rng=random.Random("x")) == generate_layout(rng=random.Random("x"))
     assert generate_layout(rng=random.Random("x")) != generate_layout(rng=random.Random("y"))
+
+
+def test_generated_track_is_a_full_lap():
+    from environment.maze_generator import generate_track
+    for name in range(30):
+        maze = Maze(generate_track(rng=random.Random(name)))
+        distances = bfs_distance_map(maze)
+        lap = distances[maze.world_to_grid(*maze.get_spawn())]
+        # the finish-line wall forces a full lap: no shortcut from S to G
+        assert lap >= 30
