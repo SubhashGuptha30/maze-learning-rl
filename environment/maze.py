@@ -7,7 +7,7 @@ from config import CELL_SIZE, GOAL_RADIUS, BLACK, WHITE, GRAY, GREEN, BLUE
 
 
 class Maze:
-    def __init__(self):
+    def __init__(self, layout=None):
         self.layout = [
             "################",
             "#S.............#",
@@ -19,6 +19,8 @@ class Maze:
             "#.............G#",
             "################",
         ]
+        if layout is not None:  # e.g. from maze_generator; default is the layout above
+            self.layout = list(layout)
         self.cell_size = CELL_SIZE
         self.rows = len(self.layout)
         self.columns = len(self.layout[0]) if self.layout else 0

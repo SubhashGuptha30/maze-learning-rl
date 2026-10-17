@@ -5,6 +5,7 @@ import random
 from agent.agent import Agent
 from agent.neural_network_brain import NeuralNetworkBrain
 from environment.maze import Maze
+from environment.maze_generator import generate_layout
 from evolution.fitness import bfs_distance_map, evaluate_fitness, path_distance
 from evolution.genome import Genome
 from evolution.population import Population
@@ -67,19 +68,48 @@ def run_generation(genomes, maze, distance_map, renderer=None, hud_prefix=""):
     return sum(reached)
 
 
+def random_maze(name):
+    """A generated maze; the same name always gives the same maze."""
+    return Maze(generate_layout(rng=random.Random(name)))
+
+
+def run_on_mazes(genomes, mazes, renderer=None, hud_prefix=""):
+    """Score every genome on each maze and set its fitness to the average.
+
+    Returns the total number of goal reaches over all mazes, or None if the
+    window was closed.
+    """
+    totals = [0.0] * len(genomes)
+    reached = 0
+    for k, maze in enumerate(mazes):
+        hud = hud_prefix if len(mazes) == 1 else f"{hud_prefix} | maze {k + 1}/{len(mazes)}"
+        result = run_generation(genomes, maze, bfs_distance_map(maze), renderer, hud)
+        if result is None:
+            return None
+        reached += result
+        for i, genome in enumerate(genomes):
+            totals[i] += genome.fitness
+    for i, genome in enumerate(genomes):
+        genome.fitness = totals[i] / len(mazes)
+    return reached
+
+
 def evolve(generations, population_size, seed, renderer=None, stop_when_solved=False, verbose=True,
-           save_path=None, seed_genome=None):
+           save_path=None, seed_genome=None, train_mazes=0):
     """Run the genetic algorithm. Returns the Statistics history.
 
-    If save_path is given, the best genome so far is written there after every
-    generation, so closing the window never loses the trained brain.
+    train_mazes=0 trains on the fixed maze in environment/maze.py. train_mazes=K
+    scores every agent on K new random mazes each generation, so memorising one
+    layout stops paying off and only general driving skill survives.
+
+    If save_path is given, the best genome of every generation is written there,
+    so closing the window never loses the trained brain.
     """
     random.seed(seed)
-    maze = Maze()
-    distance_map = bfs_distance_map(maze)
+    fixed_maze = [Maze()] if not train_mazes else None
     population = Population(population_size, seed_genome)
-    best_ever = None
     stats = Statistics()
+    runs_per_generation = population_size * max(train_mazes, 1)
 
     for _ in range(generations):
         last = stats.history[-1] if stats.history else None
@@ -87,22 +117,36 @@ def evolve(generations, population_size, seed, renderer=None, stop_when_solved=F
         if last:
             hud += f" | best {last['best']:.0f} avg {last['average']:.0f}"
 
-        reached = run_generation(population.genomes, maze, distance_map, renderer, hud)
+        mazes = fixed_maze or [random_maze(f"train-{seed}-{population.generation}-{k}")
+                               for k in range(train_mazes)]
+        reached = run_on_mazes(population.genomes, mazes, renderer, hud)
         if reached is None:
             break
 
         row = stats.record(population.generation, [g.fitness for g in population.genomes], reached)
-        best = max(population.genomes, key=lambda g: g.fitness)
-        if save_path and (best_ever is None or best.fitness > best_ever.fitness):
-            best_ever = best.copy()
-            best_ever.save(save_path, population.generation)
+        if save_path:
+            # Elitism keeps this generation's best, so on a fixed maze this never gets worse
+            max(population.genomes, key=lambda g: g.fitness).save(save_path, population.generation)
         if verbose:
-            print(Statistics.format(row, population_size))
+            print(Statistics.format(row, runs_per_generation))
         if stop_when_solved and reached:
             break
         population.evolve()
 
     return stats
+
+
+def test_brain(genome, count, renderer=None):
+    """Run one brain, without evolving it, on `count` random mazes it was never
+    trained on. Returns how many it solved."""
+    solved = 0
+    for i in range(count):
+        maze = random_maze(f"test-{i}")
+        reached = run_generation([genome], maze, bfs_distance_map(maze), renderer, f"Test maze {i + 1}/{count}")
+        if reached is None:
+            break
+        solved += reached
+    return solved
 
 
 def main():
@@ -116,7 +160,24 @@ def main():
                         help="saved brain: continued from if it exists, then updated (default: %(default)s)")
     parser.add_argument("--fresh", action="store_true",
                         help="ignore the saved brain and start from random ones (overwrites it)")
+    parser.add_argument("--train-mazes", type=int, default=0, metavar="K",
+                        help="train on K new random mazes per generation instead of the fixed maze")
+    parser.add_argument("--test", type=int, metavar="N",
+                        help="don't evolve: run the saved brain on N unseen random mazes and report")
     args = parser.parse_args()
+
+    if args.test:
+        if not os.path.exists(args.brain):
+            parser.error(f"--test needs a trained brain, but {args.brain} doesn't exist")
+        renderer = None
+        if not args.headless:
+            from ui.renderer import Renderer
+            renderer = Renderer(random_maze("test-0"))
+        solved = test_brain(Genome.load(args.brain), args.test, renderer)
+        if renderer is not None:
+            renderer.close()
+        print(f"Solved {solved}/{args.test} unseen mazes")
+        return
 
     seed_genome = None
     if not args.fresh and os.path.exists(args.brain):
@@ -131,10 +192,10 @@ def main():
     renderer = None
     if not args.headless:
         from ui.renderer import Renderer
-        renderer = Renderer(Maze())
+        renderer = Renderer(random_maze("size") if args.train_mazes else Maze())
 
     stats = evolve(args.generations, args.population, args.seed, renderer,
-                   save_path=args.brain, seed_genome=seed_genome)
+                   save_path=args.brain, seed_genome=seed_genome, train_mazes=args.train_mazes)
 
     if renderer is not None:
         renderer.close()

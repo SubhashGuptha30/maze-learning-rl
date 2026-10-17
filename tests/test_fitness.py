@@ -2,11 +2,12 @@ import unittest
 
 from environment.maze import Maze
 from evolution.fitness import bfs_distance_map, evaluate_fitness, path_distance
+from tests.test_ga import ORIGINAL_LAYOUT
 
 
 class FitnessTests(unittest.TestCase):
     def test_bfs_distance_map_and_path_distance(self):
-        maze = Maze()
+        maze = Maze(ORIGINAL_LAYOUT)
         distances = bfs_distance_map(maze)
 
         goal_x, goal_y = maze.get_goal()
