@@ -68,6 +68,9 @@ def run_generation(genomes, maze, distance_map, renderer=None, hud_prefix=""):
     return sum(reached)
 
 
+VALIDATION_SIZE = 10  # fixed layouts that pick which brain to save in multi-layout training
+
+
 def random_maze(name, kind="track"):
     """A generated track or maze; the same name always gives the same layout."""
     generate = generate_track if kind == "track" else generate_layout
@@ -105,13 +108,17 @@ def evolve(generations, population_size, seed, renderer=None, stop_when_solved=F
     driving skill survives.
 
     If save_path is given, the best genome of every generation is written there,
-    so closing the window never loses the trained brain.
+    so closing the window never loses the trained brain. With random layouts
+    that score is noisy, so instead the generation's best drives a fixed
+    validation set and is saved only when it beats the best validation score.
     """
     random.seed(seed)
     fixed_maze = [Maze()] if not train_mazes else None
     population = Population(population_size, seed_genome)
     stats = Statistics()
     runs_per_generation = population_size * max(train_mazes, 1)
+    validation = [random_maze(f"val-{i}", kind) for i in range(VALIDATION_SIZE)] if train_mazes else None
+    best_validation = -1
 
     for _ in range(generations):
         last = stats.history[-1] if stats.history else None
@@ -126,11 +133,21 @@ def evolve(generations, population_size, seed, renderer=None, stop_when_solved=F
             break
 
         row = stats.record(population.generation, [g.fitness for g in population.genomes], reached)
-        if save_path:
+        best = max(population.genomes, key=lambda g: g.fitness)
+        line = Statistics.format(row, runs_per_generation)
+        if validation:
+            # Evaluate a copy: running it overwrites fitness, which evolve() still needs
+            solved = sum(run_generation([best.copy()], m, bfs_distance_map(m)) for m in validation)
+            line += f" | validation {solved}/{len(validation)}"
+            if solved > best_validation:
+                best_validation = solved
+                if save_path:
+                    best.save(save_path, population.generation)
+        elif save_path:
             # Elitism keeps this generation's best, so on a fixed maze this never gets worse
-            max(population.genomes, key=lambda g: g.fitness).save(save_path, population.generation)
+            best.save(save_path, population.generation)
         if verbose:
-            print(Statistics.format(row, runs_per_generation))
+            print(line)
         if stop_when_solved and reached:
             break
         population.evolve()
